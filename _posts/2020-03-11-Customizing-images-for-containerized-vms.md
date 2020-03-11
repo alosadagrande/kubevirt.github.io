@@ -29,15 +29,15 @@ pub-year: 2020
 
 - [The vision](#the-vision)
 - [Preparation of the environment](#preparation-of-the-environment)
-    - [Configuration of the Builder image server](#configuration-of-the-builder-image-server)
+  - [Configuration of the Builder image server](#configuration-of-the-builder-image-server)
 - [Building standard CentOS 8 image](#building-standard-centos-8-image)
-    - [Image creation with Builder Tool](#image-creation-with-builder-tool)
-    - [Verify the custom-built image](#verify-the-custom-built-image)
-    - [Image tailoring with virt-customize](#image-tailoring-with-virt-customize)
+  - [Image creation with Builder Tool](#image-creation-with-builder-tool)
+  - [Verify the custom-built image](#verify-the-custom-built-image)
+  - [Image tailoring with virt-customize](#image-tailoring-with-virt-customize)
 - [Building standard CentOS 7 image from cloud images](#building-standard-centos-7-image-from-cloud-images)
-    - [Image creation with virt-customize](#image-creation-with-virt-customize)
+  - [Image creation with virt-customize](#image-creation-with-virt-customize)
 - [Image containerization procedure](#image-containerization-procedure)
-    - [Store the image in the container registry](#store-the-image-in-the-container-registry)
+  - [Store the image in the container registry](#store-the-image-in-the-container-registry)
 - [Summary](#summary)
 - [References](#references)
 
@@ -83,7 +83,7 @@ Before running VMs in KubeVirt, first we need to have KubeVirt running in a Kube
 > info "Information"
 > [Here](https://blog.openshift.com/enterprise-kubernetes-with-openshift-part-one/) you can find useful information between the similarities and differences between OKD and Kubernetes.
 
-On top of the OKD cluster, KubeVirt is required so that we can run our virtual machines. The installation process is pretty well detailed in the [KubeVirt’s documentation](https://kubevirt.io/pages/cloud.html). Below it is shown how KubeVirt components can be seen from the OKD web console.
+On top of the OKD cluster, KubeVirt is required so that we can run our virtual machines. The installation process is pretty well detailed in the [KubeVirt's documentation](https://kubevirt.io/pages/cloud.html). Below it is shown how KubeVirt components can be seen from the OKD web console.
 
 > info "Information"
 > KubeVirt version deployed is **0.26.1** which is the latest at the moment of writing.
@@ -164,19 +164,19 @@ Along this blog post both tools are used together in the image building process,
 In order to prepare the building environment, it is recommended to install Image Builder in a dedicated machine as it has specific security requirements. Actually, the `lorax-composer` which is one of its components doesn’t work properly with SELinux running, as it installs an entire OS image in an alternate directory.
 
 > warning "Warning"
-> As shown in the [lorax-composer documention](https://weldr.io/Running-Composer-on-RHEL/) SELinux must be disabled. However, I have been able to create custom images successfully with SELinux enabled. During this blog post all image builds are created with SELinux enabled. However, in case you find any problems during your building, check the `lorax-composer` logs in journal in order to get more detailed information.
+> As shown in the [lorax-composer documentation](https://weldr.io/Running-Composer-on-RHEL/) SELinux must be disabled. However, I have been able to create custom images successfully with SELinux enabled. During this blog post all image builds are created with SELinux enabled. However, in case you find any problems during your building, check the `lorax-composer` logs in journal in order to get more detailed information.
 
 Here it is a table where the software required to run the builds along with the versions have been used.
 
 > note "Note"
 > Operating System is **CentOS 8** since CentOS 7 Image Builder is still an [experimental feature](https://docs.centos.org/en-US/centos/install-guide/Composer/)
 
-| Configuration    | Value                                                                      |
-| ---------------- | -------------------------------------------------------------------------- |
-| Operating System | CentOS Linux release 8.1.1911 (Core)                                       |
-| Libvirt          | libvirtd (libvirt) 4.5.0                                                   |
-| virt-customize   | virt-customize 1.38.4rhel=8,release=14.module_el8.1.0+248+298dec18,libvirt |
-| Image Builder    | lorax-composer, composer-cli, (composer-cli-28.14.30-1), cockpit-composer  |
+| Configuration      | Value                                                                        |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `Operating System` | `CentOS Linux release 8.1.1911 (Core)`                                       |
+| `Libvirt`          | `libvirtd (libvirt) 4.5.0`                                                   |
+| `virt-customize`   | `virt-customize 1.38.4rhel=8,release=14.module_el8.1.0+248+298dec18,libvirt` |
+| `Image Builder`    | `lorax-composer, composer-cli, (composer-cli-28.14.30-1), cockpit-composer`  |
 
 Once the builder image server is provisioned with latest CentOS 8, the `Virtualization Host` group package is installed. It will be required to test our customized images locally before containerizing and pushing them to the OKD registry.
 
@@ -342,7 +342,7 @@ Now, let’s edit the `devstation-centos8.toml` file which is in charge of build
 - A Git repository has been configured to be cloned. Actually, it is a Git repository that contains a manual detailing how the custom image is configured and how it must be used.
 
 > warning "Warning"
-> It is important to add console as kernel option since we have realized that Builder Image tool disables it by default. Probably for other use cases it is fine to be disabled, however, in our case of containerized VMs it is almost mandatory to be enabled. It will allow the virtcl command from KubeVirt project to connect to the VM while it is booting in our OKD Kubernetes cluster.
+> It is important to add console as kernel option since we have realized that Builder Image tool disables it by default. Probably for other use cases it is fine to be disabled, however, in our case of containerized VMs it is almost mandatory to be enabled. It will allow the virtctl command from KubeVirt project to connect to the VM while it is booting in our OKD Kubernetes cluster.
 
 This is the final building configuration file, it can be downloaded from [here](/assets/2020-03-11-Customizing-images-for-containerized-vms/devstation-centos8.toml)
 
