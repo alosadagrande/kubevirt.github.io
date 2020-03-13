@@ -975,7 +975,7 @@ In this blog post, it was detailed a real use of a company that uses KubeVirt to
 The article explained how to create a golden image using different tools such as Builder Tool and virt-customize. Once the custom-built image was ready, then it is transformed into a container image so that it can be uploaded and stored into a container registry.
 
 > info "Information"
-> In the next blog post of these series, the custom-built containerized VM will be deployed from our corporate registry into our Kubernetes cluster. It will be shown how the developers can fine-tune even more the image deployment, how extra storage can be requested and how to connect to the `VirtualMachineInstance`. Stay tuned!
+> In the next blog post of these series, the custom-built containerized VM will be deployed from our corporate registry into our Kubernetes cluster. It will be shown how the developers can fine-tune even more the image deployment, how extra storage can be requested and how to connect to the _VirtualMachineInstance_. Stay tuned!
 
 ## References
 
