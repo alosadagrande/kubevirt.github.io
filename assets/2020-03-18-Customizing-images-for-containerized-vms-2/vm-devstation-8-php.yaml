@@ -1,0 +1,71 @@
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachine
+metadata:
+  name: qa-php-app1
+spec:
+  running: true 
+  template:
+    metadata:
+      labels: 
+        kubevirt.io/size: small
+        kubevirt.io/domain: qa-php-app1
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+          - name: default
+            bridge: {}
+        resources:
+          requests:
+            cpu: 1
+            memory: 2Gi
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: quay.io/alosadag/devstation:v8-gui
+            imagePullPolicy: IfNotPresent
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: | 
+              #cloud-config
+              users:
+                - name: alosadag
+                  ssh-authorized-keys:
+                    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCu6ebpjHClLxurBN3csEZNbIo3493cqFZGCnpicdeipIWVcU+Hdvy0/CIiZ8AQvcNsaC44zC9PYlHnoFWIfxrGvPvZikUC/qv4xmzNZa60Ype4M3tyMUXlP+vbDu3sOgeIWhyiyvV7NN2DGYF9mi0eKV5u/awS2B/pL6KXPjXjwVZNFB9aur9DkVClgAHc+18pI11RMMuUK4oOPsdopvECgZoWK/zuXrCJQFmqMqlArgveOhGU1FGUpeG63lsf38Xe2+9EXhhcMMuLcYN2BxOwdyRcHt0uflI3SagufUHbBA0vLF4XeTaoU+X2NFM5ToQDdP5Aa+s0mKgGTR9SpknT ansible-generated on eko1.cloud.lab.eng.bos.redhat.com 
+                  lock_passwd: false
+                  sudo: ALL=(ALL) NOPASSWD:ALL
+                  groups: users, wheel
+              packages:
+                - git
+                - php-cli
+                - php-zip
+                - wget
+                - unzip
+                - php-json
+                - curl
+              runcmd:
+                - "export HOME=/root && curl -sS https://getcomposer.org/installer | php"
+                - mv composer.phar /usr/bin/composer
+                - chmod +x /usr/bin/composer
+                - git clone https://github.com/PHP-DI/demo.git /var/www/html/demo
+                - cd /var/www/html/demo && /usr/bin/composer install -vvv
+                - sed -i 's_DocumentRoot "/var/www/html"_DocumentRoot "/var/www/html/demo/web/"_' /etc/httpd/conf/httpd.conf
+                - systemctl restart httpd
+              write_files:
+                - content: |
+                    1. Verify accessing to Apache root is showing the app
+                    2. Verify that you can create new items
+                    3 .....
+                  path: /var/www/html/index.html
+                  permissions: "0644"
+

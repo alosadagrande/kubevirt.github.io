@@ -1,0 +1,53 @@
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachine
+metadata:
+  name: devstation-8-extradisk
+spec:
+  running: true 
+  template:
+    metadata:
+      labels: 
+        kubevirt.io/size: small
+        kubevirt.io/domain: devstation-8-extradisk
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+            - name: emptydisk
+              disk:
+                bus: virtio
+          interfaces:
+          - name: default
+            bridge: {}
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: image-registry.openshift-image-registry.svc:5000/openshift/devstation:v8-gui
+            imagePullPolicy: IfNotPresent
+        - name: emptydisk
+          emptyDisk:
+            capacity: "10Gi"
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: | 
+              #cloud-config
+              users:
+                - name: alosadag
+                  ssh-authorized-keys:
+                    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCu6ebpjHClLxurBN3csEZNbIo3493cqFZGCnpicdeipIWVcU+Hdvy0/CIiZ8AQvcNsaC44zC9PYlHnoFWIfxrGvPvZikUC/qv4xmzNZa60Ype4M3tyMUXlP+vbDu3sOgeIWhyiyvV7NN2DGYF9mi0eKV5u/awS2B/pL6KXPjXjwVZNFB9aur9DkVClgAHc+18pI11RMMuUK4oOPsdopvECgZoWK/zuXrCJQFmqMqlArgveOhGU1FGUpeG63lsf38Xe2+9EXhhcMMuLcYN2BxOwdyRcHt0uflI3SagufUHbBA0vLF4XeTaoU+X2NFM5ToQDdP5Aa+s0mKgGTR9SpknT ansible-generated on eko1.cloud.lab.eng.bos.redhat.com 
+                  lock_passwd: false
+                  sudo: ALL=(ALL) NOPASSWD:ALL
+                  groups: users, wheel
