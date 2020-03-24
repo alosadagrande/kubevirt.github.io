@@ -1,7 +1,7 @@
 ---
 layout: post
 author: Alberto Losada Grande
-description: This third part focuses on deploying custom-built containerized images into our Kubernetes cluster. However, this is just the beginning since our users need to understand how VMs can be accessed, how extra disks can be added or how standardize VMs can be adapted to their needs with cloud-init. 
+description: This third part focuses on adjust the custom-built containerized image to end users and business needs. Deploying and accessing to the VMs is just the beginning since our users need to know how a standard VM can be adapted to their specific requirements.
 navbar_active: Blogs
 category: news
 tags:
@@ -38,16 +38,16 @@ pub-year: 2020
 
 ## Previously on customizing images for containerized VMs
 
-In the previous article [Customizing images for containerized VMs, part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %}) it was explained the vision of a software company, which wanted the Software Engineering team to be autonomous to deploy, run and destroy standardized VMs in the current Kubernetes infrastructure. On top of these custom-built virtual machines the necessary tests and validations needs to be executed before commiting the code to the respective Git branch. 
+In the previous article [Customizing images for containerized VMs, part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %}) it was explained the vision of a software company, which wanted the Software Engineering team to be autonomous to deploy, run and destroy standardized VMs in the current Kubernetes infrastructure. On top of these custom-built virtual machines the necessary tests and validations needs to be executed before commiting the code to the respective Git branch.  From the Systems Engineering department point of view, there is no longer the need to maintain two different infrastructures to run containerized workloads and virtual machines.
 
-Thus, developers can request a fresh standard environment to test their code and more important, using the same tooling (`kubectl`, `oc`) they utilize when running applications in the corporate OKD Kubernetes cluster. From the Systems Engineering department point of view, there is no longer the need to maintain two different infrastructures to run containerized workloads and virtual machines.
+Throughout the second blog post [Customizing images for containerized VMs part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %}), the process of containerizing the custom-built QCOW2 image was detailed. Additionally, the reader could follow how KubeVirt handles the deployment of a containerized VM into the corporate OKD Kubernetes cluster and the different options end users have to access the VM and do their work.
 
-Throughout the previous blog post, the process of creating a *golden image* using tools such as _Builder Tool_ and _virt-customize_ was described. Once the custom-built image was ready, it was containerized, uploaded and stored into the private OKD container registry.
+During this article, the custom-built container images stored in the OKD container registry are going to be deployed to show how they can be adapted to our specific needs. Actually, there are some situations where an application requires much storage than it is configured in the container image (10 GB) where KubeVirt's _emptyDisk_ and _hostDisk_ features come in handy. In our specific use case, there is a need from the Quality Assurance team to automate the deployment of the applications that needs to be tested by the team. Automating the deployment and configuration of the application at VM start-up allow the team to focus on their verification tasks. Certainly it opens the door to automate the whole quality process.
 
-At that point, the following container images are stored in the openshift namespace, so they are available to all authenticated OKD Kubernetes users. 
+At this point where the tasks detailed in [part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %}) and [part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %}) were achieved, the following container images are stored in the openshift namespace, so they are available to all authenticated OKD Kubernetes users. 
 
 ```sh
-$ oc get is devstation -n openshift
+$ oc get imagestream devstation -n openshift
 NAME         IMAGE REPOSITORY                                                                   TAGS                                    UPDATED
 devstation   default-route-openshift-image-registry.apps.okd.okdlabs.com/openshift/devstation   v8-terminal,v7-gui,v7-terminal,v8-gui   7 hours ago
 ```
@@ -93,12 +93,12 @@ v8-terminal
 ```
 
 > note "Note"
-> In case you did not build the custom images as detailed in the [Customizing images for containerized VMs part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %}) you still can download them from my [public container image repository](https://quay.io/repository/alosadag/devstation?tab=tags) at quay.io. 
+> In case you did not build the custom container images as detailed in the [Customizing images for containerized VMs part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %}) you still can download them from my [public container image repository](https://quay.io/repository/alosadag/devstation?tab=tags) at quay.io. 
 
-During this article, the custom-built container images stored in the OKD container registry are going to be used to deploy virtual machines in Kubernetes. Whether you want some hands-on experience while reading this write up, you can just copy the public container images from quay.io container registry to your private container registry using tools like `skopeo`:
+Whether you want some hands-on experience while reading this write up, you can just copy the public container images from quay.io container registry to your private container registry using tools like `skopeo`:
 
 > info "Information"
-> The process of copying images to OKD container registry was explained in the section [store the image in the container registry](https://kubevirt.io/2020/Customizing-images-for-containerized-vms.html#store-the-image-in-the-container-registry) from the previous article [Customizing images for containerized VMs, part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %})
+> The process of copying images to OKD container registry was explained in the section [store the image in the container registry](https://kubevirt.io/2020/Customizing-images-for-containerized-vms-part2.html#store-the-image-in-the-container-registry) from the previous article [Customizing images for containerized VMs, part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %})
 
 ```sh
 $ podman login -u $(oc whoami) -p $(oc whoami -t) --tls-verify=false default-route-openshift-image-registry.apps.okd.okdlabs.com
@@ -126,14 +126,14 @@ Other valid option is just **replace the image name from the YAML *VirtualMachin
 
 ## Add disks to the custom-built VM
 
-Presumably, there is a chance that users need more disk space for the VMs deployed from the custom-built images. In the former article, QCOW2 custom-built images were [already expanded](http://kubevirt.io/2020/Customizing-images-for-containerized-vms.html#image-creation-with-builder-tool) to 10 GB size in order to meet the Software Engineering team demands. Despite that, an extra disk can be desirable in cases where there is a requirement to install a large number of packages or import massive data.
+Presumably, there is a chance that users need more disk space for the VMs deployed from the custom-built images. In [Customizing images for containerized VMs part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %}), QCOW2 custom-built images were [already expanded](http://kubevirt.io/2020/Customizing-images-for-containerized-vms.html#image-creation-with-builder-tool) to 10 GB size in order to meet the Software Engineering team demands. Despite that, an extra disk can be desirable in cases where there is a requirement to install a large number of packages or import massive data.
 
 
 ### emptyDisk (ephemeral)
 
 In cases where there is a need for extra storage, the developers can take advantage of the [emptyDisk](https://kubevirt.io/user-guide/#/creation/disks-and-volumes?id=emptydisk) feature. It adds an extra sparse QCOW2  **ephemeral** disk to the VM as long as it exists. This means that the data stored in the emptyDisk will survive guest side reboots, but not VM re-creation.
 
-> info “Information”
+> info "Information"
 > Capacity parameter of emptyDisk must be specified in the YAML manifest.
 
 Below, there is an example of YAML manifest where an extra emptyDisk of 10 GB was requested along with the usual containerDisk. The YAML manifest can be downloaded from [here](/assets/2020-03-18-Customizing-images-for-containerized-vms-2/vm-devstation-8-extradisk.yaml).
@@ -256,7 +256,7 @@ It is important to appreciate that the *hostDisk* uses local Node storage and it
 > warning "Warning"
 > If you request a _hostDisk_ make sure the VM attached to the disk always runs in the same Node where the _hostDisk_ is located.
 
-A [YAML VirtualMachine manifest](/assets/2020-03-18-Customizing-images-for-containerized-vms-2/vm-devstation-8-hostdisk.yaml) example of running a devstation with a _hostDisk_ attached is presented below. 
+A [YAML VirtualMachine manifest](/assets/2020-03-18-Customizing-images-for-containerized-vms-2/vm-devstation-8-hostdisk.yaml) of running a devstation with a _hostDisk_ attached is presented below. 
 
 ```sh
 apiVersion: kubevirt.io/v1alpha3
@@ -310,7 +310,7 @@ spec:
 
 <br>
 
-The result of applying the YAML manifest is stated below. Observer that the VM (devstation-8-hostdisk) was deployed with an extra block device of 1 Gi (dev/vdc).
+The result of applying the YAML manifest is stated below. Observer that the VM (devstation-8-hostdisk) was deployed with an extra block device of 1Gi (dev/vdc).
 ```sh
 oc get vmi -o wide
 NAME               AGE     PHASE     IP                NODENAME                       LIVE-MIGRATABLE
@@ -356,7 +356,7 @@ total 4.0K
 
 ### Other options
 
-AS it has been explained along these series of two blog posts, the company does not need to persist the VM. However, there are some cases where it is necessary to copy some libraries or files from the internal shared fileserver or viceversa. In those cases, a shared volume can be mounted in our VM running on top of OKD Kubernetes. Below, it is shown how a 50G shared volume from the corporate NFS server is mounted inside the VM (devstation-8-gui):
+As it has been explained along these series of blog posts, the company does not need to persist the VM. However, there are some cases where it is necessary to copy some libraries or files from the internal shared fileserver or viceversa. In those cases, a shared volume can be mounted in our VM running on top of OKD Kubernetes. Below, it is shown how a 50G shared volume from the corporate NFS server is mounted inside the VM (devstation-8-gui):
 
 ```sh
 [root@devstation-8-gui ~]# mount -t nfs nfsserver:/srv/nfs4/ /mnt
@@ -478,7 +478,8 @@ $ oc create -f vm-devstation-8-php.yml
 virtualmachine.kubevirt.io/qa-php-app1 created
 ```
 
-All the tasks configured in the cloud-init section can be viewed connecting to the serial console:
+<br>
+All the tasks configured in the cloud-init section are executed at VM start-up. It is possible to see them when connecting to the VM serial console:
 
 ```sh
 $ kubectl virt console qa-php-app1 

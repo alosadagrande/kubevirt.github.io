@@ -1,7 +1,7 @@
 ---
 layout: post
 author: Alberto Losada Grande
-description: This second part deals with the containerization process of the custom images built in the previous blog post. It details the procedure to upload and store them into a container image registry and how can be deployed by developers and users.
+description: This second part deals with the containerization process of the custom images built in the previous blog post. It details the procedure to upload and store them into a container image registry and how can be deployed and accessed by the end users.
 navbar_active: Blogs
 category: news
 tags:
