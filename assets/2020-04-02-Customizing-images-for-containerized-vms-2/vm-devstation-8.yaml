@@ -1,0 +1,40 @@
+apiVerson: kubevirt.io/v1alpha3
+kind: VirtualMachine
+metadata:
+  name: devstation
+spec:
+  running: true 
+  template:
+    metadata:
+      labels: 
+        kubevirt.io/size: small
+        kubevirt.io/domain: devstation
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+          - name: default
+            bridge: {}
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: image-registry.openshift-image-registry.svc:5000/openshift/devstation:v8-terminal
+            imagePullPolicy: IfNotPresent
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: | 
+              #cloud-config
