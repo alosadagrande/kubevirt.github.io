@@ -98,7 +98,7 @@ v8-terminal
 Whether you want some hands-on experience while reading this write up, you can just copy the public container images from quay.io container registry to your private container registry using tools like `skopeo`:
 
 > info "Information"
-> The process of copying images to OKD container registry was explained in the section [store the image in the container registry](https://kubevirt.io/2020/Customizing-images-for-containerized-vms-part2.html#store-the-image-in-the-container-registry) from the previous article [Customizing images for containerized VMs, part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %})
+> The process of copying images to OKD container registry was explained in the section [store the image in the container registry](https://kubevirt.io/2020/Customizing-images-for-containerized-vms-part2.html#store-the-image-in-the-container-registry) from the previous article [Customizing images for containerized VMs part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %})
 
 ```sh
 $ podman login -u $(oc whoami) -p $(oc whoami -t) --tls-verify=false default-route-openshift-image-registry.apps.okd.okdlabs.com
@@ -557,17 +557,21 @@ Realize that Q&A or even the developers can take advantage of KubeVirt coupled w
 
 ## Summary
 
-In this article, it has been explained how a custom-built containerized image can be deployed into our Kubernetes cluster. In any case, this is not the end for the developers, it is just the start point. Once they are capable of deploying the developer environment (VM), they need to learn how it can be accessed. In this blog post, it has been discussed about different choices such as connecting from the OKD web user interface, exposing the SSH service using a nodePort service type, using virtctl command-line or connecting to an exposed interface of the VM formerly configured by Multus.
+In this article, an indication of how a developer or Q&A member can adapt the golden container image was described. This adjustment could mean simply add disks to the VM, access to network resources or more complex modifications leveraging the cloud-init capabilities at VM start-up.
 
-Lastly, a brief indication of how a developer or Q&A member can adapt the golden container image was described. This adjustment could mean simply add disks to the VM or more complex changes leveraging the cloud-init capabilities.
-
-In conclusion, these series of blog posts have presented a real use case where a company benefits from KubeVirt to create standard environments. They are used by developers to test their code before committing and also by the Q&A team to verify the proper behaviour of the application on clean environments. And even more relevant. both teams are autonomous to create the expected infrastructure to do their job.
+In conclusion, these series of blog posts have presented a real use case where a company benefits from KubeVirt to create standard environments. They are used by developers to test their code before committing and also by the Q&A team to verify the proper behaviour of the application on clean environments. And even more relevant, both teams are autonomous to create the expected infrastructure to do their job.
 
 
 ## References
 
 * [Customizing images for containerized VMs, part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %})
-* [OpenShift 4.3 official documentation](https://docs.openshift.com/container-platform/4.3/welcome/index.html)1
+* [Customizing images for containerized VMs, part 2]({% post_url 2020-04-02-Customizing-images-for-containerized-vms-part2 %})
+* [KubeVirt disks and volumes documentation](https://kubevirt.io/user-guide/#/creation/disks-and-volumes)
+* [Cloud-init documentation](https://cloudinit.readthedocs.io/en/latest/topics/examples.html).
+* [OpenShift 4.3 official documentation](https://docs.openshift.com/container-platform/4.3/welcome/index.html)
+* [OKD official documentation](https://docs.okd.io/latest/welcome/index.html)
+* [Custom-built container images available to download](https://quay.io/repository/alosadag/devstation?tab=tags)
+
 
 
 

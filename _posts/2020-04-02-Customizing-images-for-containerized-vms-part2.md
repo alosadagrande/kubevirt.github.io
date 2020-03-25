@@ -694,6 +694,7 @@ In the next and last article of this series [Customizing images for containerize
 * [Customizing images for containerized VMs, part 1]({% post_url 2020-03-26-Customizing-images-for-containerized-vms %})
 * [OpenShift 4.3 official documentation](https://docs.openshift.com/container-platform/4.3/welcome/index.html)
 * [OKD official documentation](https://docs.okd.io/latest/welcome/index.html)
-
-
+* [Multus CNI code repository](https://github.com/intel/multus-cni)
+* [Custom-built container images available to download](https://quay.io/repository/alosadag/devstation?tab=tags)
+* [Manage kubectl plugins with Krew](https://krew.dev/) 
 
